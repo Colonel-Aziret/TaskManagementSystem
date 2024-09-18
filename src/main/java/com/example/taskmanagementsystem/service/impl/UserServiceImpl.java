@@ -5,6 +5,7 @@ import com.example.taskmanagementsystem.enums.Role;
 import com.example.taskmanagementsystem.repository.UserRepository;
 import com.example.taskmanagementsystem.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
 
@@ -32,7 +34,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new RuntimeException("Пользователь с таким email уже существует");
         }
-
+        log.info("Create user with username: {}", user.getUsername());
         return save(user);
     }
 

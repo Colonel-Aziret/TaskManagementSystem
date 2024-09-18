@@ -2,15 +2,10 @@ package com.example.taskmanagementsystem.entity;
 
 import com.example.taskmanagementsystem.enums.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -18,6 +13,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor

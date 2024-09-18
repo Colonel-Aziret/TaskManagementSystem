@@ -1,9 +1,8 @@
 package com.example.taskmanagementsystem.security;
 
+import com.example.taskmanagementsystem.entity.User;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -15,11 +14,9 @@ public class JwtHandler {
     @Value(value = "${jwt.token.time.expired}")
     private int timeExpired;
 
-    public String jwtGenerationToken(Authentication authentication) {
+    public String jwtGenerationToken(User user) {
         Date nowTime = new Date();
         Date timeDateExpired = new Date(nowTime.getTime() + timeExpired);
-
-        UserDetails user = (UserDetails) authentication.getPrincipal();
 
         return Jwts.builder()
                 .setIssuedAt(nowTime)

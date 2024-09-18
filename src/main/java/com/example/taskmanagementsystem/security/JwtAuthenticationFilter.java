@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
 import java.util.Objects;
 /*
@@ -24,6 +26,7 @@ import java.util.Objects;
  */
 
 @Component
+@Slf4j
 public class JwtAuthenticationFilter
         extends // Расширяем OncePerRequestFilter для обработки каждого запроса
         OncePerRequestFilter //  Класс фильтра Spring Security, который гарантирует, что фильтр выполняется только один раз для каждого запроса.
@@ -46,11 +49,20 @@ public class JwtAuthenticationFilter
                                       HttpServletResponse response, // HTTP-ответ
                                       FilterChain filterChain// Цепочка фильтров
     ) throws ServletException, IOException {
+        String path = request.getRequestURI();
+
+        // Пропустить фильтрацию для публичных маршрутов
+        if (path.startsWith("/auth/sign-up") || path.startsWith("/auth/login")) {
+            log.info("Skipping token validation for public path: " + path);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = this.parseJwt(request);// Извлекаем JWT-токен из заголовка Authorization
-        if(
+        if (
                 Objects.nonNull(authHeader) &&// Проверяем, что токен не пустой
                         jwtTokenHandler.tokenValidator(authHeader) // Метод валидации JWT-токена.
-        ){
+        ) {
             String userName = this.jwtTokenHandler.getUserLoginFromToken(authHeader); // Метод получения имени пользователя из JWT-токена.
             UserDetails user = this.userDetailsService.loadUserByUsername(userName); // Метод поиска пользователя в базе данных по имени пользователя.
             UsernamePasswordAuthenticationToken authenticationToken =  // Создать объект аутентификации с информацией о пользователе
@@ -59,15 +71,15 @@ public class JwtAuthenticationFilter
         }
 
         filterChain.doFilter(request, response);
-// Передать управление следующему фильтру в цепочке
+        // Передать управление следующему фильтру в цепочке
 
     }
 
     // Метод для извлечения JWT-токена из заголовка Authorization
-    private String parseJwt(HttpServletRequest request){  //  Класс фильтра Spring Security, который гарантирует, что фильтр выполняется только один раз для каждого запроса.
+    private String parseJwt(HttpServletRequest request) {  //  Класс фильтра Spring Security, который гарантирует, что фильтр выполняется только один раз для каждого запроса.
         final String authHeader = request.getHeader("Authorization");// Получаем значение заголовка Authorization
 
-        if(Objects.nonNull(authHeader) && authHeader.startsWith("Bearer ")){// Проверяем наличие префикса "Bearer "
+        if (Objects.nonNull(authHeader) && authHeader.startsWith("Bearer ")) {// Проверяем наличие префикса "Bearer "
             return authHeader.substring(7); // Возвращаем токен без префикса
         }
         return authHeader; // Возвращаем null, если токен не найден. По хорошему лучше выкинуть исключение
