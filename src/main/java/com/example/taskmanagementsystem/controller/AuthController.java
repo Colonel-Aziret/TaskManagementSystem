@@ -7,30 +7,30 @@ import com.example.taskmanagementsystem.service.impl.AuthenticationServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/auth")
 @Slf4j
 public class AuthController {
     private final AuthenticationServiceImpl authenticationService;
 
-    @PostMapping(value = "/sign-up", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/sign-up")
     public ResponseEntity<JwtAuthenticationResponse> signUp(@RequestBody @Valid SignUpRequest request) {
-        log.info("[#register] is calling");
+        log.info("[#signUp] is calling");
         JwtAuthenticationResponse response = authenticationService.signUp(request);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping(value = "/sing-in", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String singIn(@RequestBody SignInRequest request) {
+    @PostMapping(value = "/sign-in")
+    public String singIn(@RequestBody @Valid SignInRequest request) {
+        log.info("[#signIn] is calling");
         authenticationService.signIn(request);
-        return "Успешный вход";
+        return "SUCCESS";
     }
 }
