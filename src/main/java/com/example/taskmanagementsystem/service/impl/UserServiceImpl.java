@@ -38,6 +38,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return save(user);
     }
 
+    @Override
+    public User getById(Long id) {
+        if (id == null) {
+            return null;
+        }
+        return userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
     // Получение пользователя по имени пользователя
     public User getByUsername(String username) {
         return userRepository.findByUsername(username)

@@ -27,8 +27,6 @@ public class User implements UserDetails {
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Task> tasks;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
