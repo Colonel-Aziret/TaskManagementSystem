@@ -2,15 +2,19 @@ package com.example.taskmanagementsystem.service.impl;
 
 import com.example.taskmanagementsystem.dto.CreateTaskDto;
 import com.example.taskmanagementsystem.dto.Response;
+import com.example.taskmanagementsystem.dto.TaskDto;
 import com.example.taskmanagementsystem.entity.Task;
 import com.example.taskmanagementsystem.entity.User;
 import com.example.taskmanagementsystem.repository.TaskRepository;
 import com.example.taskmanagementsystem.service.TaskService;
 import com.example.taskmanagementsystem.service.UserService;
 import com.example.taskmanagementsystem.utils.exceptions.ObjectNotFoundException;
+import com.example.taskmanagementsystem.utils.mapper.TaskMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +22,7 @@ import org.springframework.stereotype.Service;
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final UserService userService;
+    private final TaskMapper taskMapper;
 
     @Override
     public void createTask(CreateTaskDto request) {
@@ -51,8 +56,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Response delete(Long id) {
-        return null;
+    public void deleteTask(Long id) throws ObjectNotFoundException {
+        log.info("Delete task with id: {}", id);
+        if (taskRepository.findById(id).isEmpty()) {
+            throw new ObjectNotFoundException("Task with id is not found");
+        }
+        taskRepository.deleteById(id);
     }
 
     @Override
@@ -61,7 +70,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Response getAll() {
-        return null;
+    public List<TaskDto> getAll() {
+        return taskMapper.entityToDtoList(taskRepository.findAll());
     }
 }

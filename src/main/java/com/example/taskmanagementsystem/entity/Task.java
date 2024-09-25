@@ -24,7 +24,7 @@ public class Task {
     private LocalDate dueTime;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
     @Enumerated(EnumType.STRING)
