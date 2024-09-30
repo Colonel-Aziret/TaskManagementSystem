@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,11 +32,13 @@ public class TaskController {
         }
     }
 
-    @PutMapping(value = "/update")
-    public ResponseEntity<Response> updateTask(@RequestBody CreateTaskDto request) {
+    @PreAuthorize("hasRole('USER')")
+    @PutMapping(value = "/update/{userId}")
+    public ResponseEntity<Response> updateTask(@RequestBody CreateTaskDto request,
+                                               @PathVariable Long userId) {
         log.info("[#updateTask] is calling");
         try {
-            CreateTaskDto createTaskDto = taskService.updateTask(request);
+            CreateTaskDto createTaskDto = taskService.updateTaskUser(request, userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(new Response("Updated successfully", createTaskDto));
         } catch (ObjectNotFoundException exception) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Response("Task is not updated" + exception.getMessage(), null));
@@ -53,8 +56,32 @@ public class TaskController {
         }
     }
 
+    @GetMapping("/get-task/{id}")
+    public ResponseEntity<Response> getById(@PathVariable Long id) {
+        log.info("[#getById] task with ID: {}", id);
+        try {
+            return ResponseEntity.ok(new Response("Successfully got task with id", taskService.getById(id)));
+        } catch (ObjectNotFoundException exception) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Response("Task with id is not found", null));
+        }
+    }
+
     @GetMapping("/get-all")
-    public List<TaskDto> getAllTasks() {
-        return taskService.getAll();
+    public List<TaskDto> getAllTasks(@RequestParam(required = false, defaultValue = "0") int page,
+                                     @RequestParam int size,
+                                     @RequestParam(required = false, defaultValue = "priority,ASC") String[] sort) {
+        return taskService.getAll(page, size, sort);
+    }
+
+
+    @PutMapping("/assign/{taskId}/{userId}")
+    public ResponseEntity<Response> assignTaskToUser(@PathVariable Long taskId,
+                                                     @PathVariable Long userId) {
+        try {
+            TaskDto taskDto = taskService.assignTaskToUser(taskId, userId);
+            return ResponseEntity.ok(new Response("Successfully assign task to user", taskDto));
+        } catch (ObjectNotFoundException exception) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Response(exception.getMessage(), null));
+        }
     }
 }

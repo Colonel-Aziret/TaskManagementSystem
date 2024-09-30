@@ -4,7 +4,6 @@ import com.example.taskmanagementsystem.entity.Task;
 import com.example.taskmanagementsystem.enums.Priority;
 import com.example.taskmanagementsystem.enums.Status;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;

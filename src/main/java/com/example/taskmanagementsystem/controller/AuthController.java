@@ -21,16 +21,14 @@ public class AuthController {
     private final AuthenticationServiceImpl authenticationService;
 
     @PostMapping(value = "/sign-up")
-    public ResponseEntity<JwtAuthenticationResponse> signUp(@RequestBody @Valid SignUpRequest request) {
+    public JwtAuthenticationResponse signUp(@RequestBody @Valid SignUpRequest request) {
         log.info("[#signUp] is calling");
-        JwtAuthenticationResponse response = authenticationService.signUp(request);
-        return ResponseEntity.ok(response);
+        return authenticationService.signUp(request);
     }
 
     @PostMapping(value = "/sign-in")
-    public String singIn(@RequestBody @Valid SignInRequest request) {
+    public JwtAuthenticationResponse singIn(@RequestBody @Valid SignInRequest request) {
         log.info("[#signIn] is calling");
-        authenticationService.signIn(request);
-        return "SUCCESS";
+        return authenticationService.signIn(request);
     }
 }
