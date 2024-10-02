@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,16 +31,14 @@ public class TaskController {
         }
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @PutMapping(value = "/update/{userId}")
-    public ResponseEntity<Response> updateTask(@RequestBody CreateTaskDto request,
-                                               @PathVariable Long userId) {
+    @PutMapping(value = "/update")
+    public ResponseEntity<Response> updateTask(@RequestBody CreateTaskDto request) {
         log.info("[#updateTask] is calling");
         try {
-            CreateTaskDto createTaskDto = taskService.updateTaskUser(request, userId);
+            CreateTaskDto createTaskDto = taskService.updateTask(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(new Response("Updated successfully", createTaskDto));
         } catch (ObjectNotFoundException exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Response("Task is not updated" + exception.getMessage(), null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Response(exception.getMessage(), null));
         }
     }
 

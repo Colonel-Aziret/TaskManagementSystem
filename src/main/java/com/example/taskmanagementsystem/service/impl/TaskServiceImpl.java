@@ -4,6 +4,7 @@ import com.example.taskmanagementsystem.dto.CreateTaskDto;
 import com.example.taskmanagementsystem.dto.TaskDto;
 import com.example.taskmanagementsystem.entity.Task;
 import com.example.taskmanagementsystem.entity.User;
+import com.example.taskmanagementsystem.enums.Role;
 import com.example.taskmanagementsystem.repository.TaskRepository;
 import com.example.taskmanagementsystem.repository.UserRepository;
 import com.example.taskmanagementsystem.service.TaskService;
@@ -19,7 +20,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -39,33 +39,19 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public CreateTaskDto updateTaskAdmin(CreateTaskDto request) throws ObjectNotFoundException {
+    public CreateTaskDto updateTask(CreateTaskDto request) throws ObjectNotFoundException {
         log.info("[#updateTask] is calling");
         Task task = taskRepository.findById(request.getId()).orElseThrow(() -> new ObjectNotFoundException("Task is not found"));
-        task = buildTask(request, task);
-        CreateTaskDto createTaskDto = new CreateTaskDto(task);
-        log.info("updated task with ID: {}", task.getId());
-        taskRepository.save(task);
-        return createTaskDto;
-    }
-
-    @Override
-    public CreateTaskDto updateTaskUser(CreateTaskDto request, Long userId) throws ObjectNotFoundException {
-        log.info("[#updateTask] is calling");
-        Task task = taskRepository.findById(request.getId()).orElseThrow(() -> new ObjectNotFoundException("Task is not found"));
-        if (task.getUser() == null) {
-            throw new ObjectNotFoundException("The task has no user");
-        }
-
-        if (Objects.equals(task.getUser().getId(), userId)) {
+        User user = userService.getCurrentUser();
+        if (task.getUser() != null && user.getId().equals(task.getUser().getId()) || user.getRole().equals(Role.ADMIN)) {
+            log.info("userId, username, role: {}, {}, {}", user.getId(), user.getUsername(), user.getRole());
             task = buildTask(request, task);
             CreateTaskDto createTaskDto = new CreateTaskDto(task);
             log.info("updated task with ID: {}", task.getId());
             taskRepository.save(task);
             return createTaskDto;
-        } else {
-            throw new ObjectNotFoundException("The task being modified does not have a matching userId");
         }
+        throw new ObjectNotFoundException("User cannot update this task");
     }
 
     private Task buildTask(CreateTaskDto request, Task task) {

@@ -11,8 +11,7 @@ import java.util.Optional;
 public interface TaskService {
     void createTask(CreateTaskDto request);
 
-    CreateTaskDto updateTaskAdmin(CreateTaskDto request) throws ObjectNotFoundException;
-    CreateTaskDto updateTaskUser(CreateTaskDto request, Long id) throws ObjectNotFoundException;
+    CreateTaskDto updateTask(CreateTaskDto request) throws ObjectNotFoundException;
 
     void deleteTask(Long id) throws ObjectNotFoundException;
 
