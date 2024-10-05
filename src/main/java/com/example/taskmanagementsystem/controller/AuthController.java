@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/auth")
 @Slf4j
 public class AuthController {
     private final AuthenticationServiceImpl authenticationService;
@@ -43,5 +42,15 @@ public class AuthController {
     public ResponseEntity<String> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
         passwordResetService.resetPassword(token, newPassword);
         return ResponseEntity.ok("Password has been successfully reset.");
+    }
+
+    @GetMapping("/")
+    public String home() {
+        return "Hello!";
+    }
+
+    @GetMapping("/secured")
+    public String secured() {
+        return authenticationService.addUserWithOAuth2();
     }
 }

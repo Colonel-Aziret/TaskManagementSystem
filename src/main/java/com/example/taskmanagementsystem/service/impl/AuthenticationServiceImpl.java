@@ -5,11 +5,20 @@ import com.example.taskmanagementsystem.dto.SignInRequest;
 import com.example.taskmanagementsystem.dto.SignUpRequest;
 import com.example.taskmanagementsystem.enums.Role;
 import com.example.taskmanagementsystem.entity.User;
+import com.example.taskmanagementsystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +27,7 @@ public class AuthenticationServiceImpl {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
 
     // Регистрация пользователя
     public JwtAuthenticationResponse signUp(SignUpRequest request) {
@@ -48,6 +58,28 @@ public class AuthenticationServiceImpl {
 
         var jwt = jwtService.generateToken(user);
         return new JwtAuthenticationResponse(jwt);
+    }
+
+    public String addUserWithOAuth2() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
+            OAuth2User oAuth2User = oauthToken.getPrincipal();
+            if (oAuth2User != null) {
+                Map<String, Object> attributes = oAuth2User.getAttributes();
+                Optional<User> optionalUser = userRepository.findByIdFromOAuth2((String) attributes.get("sub"));
+                if (optionalUser.isEmpty()) {
+                    User user = new User();
+                    user.setUsername((String) attributes.get("given_name"));
+                    String password = passwordEncoder.encode(UUID.randomUUID().toString());
+                    user.setPassword(password);
+                    user.setEmail((String) attributes.get("email"));
+                    user.setRole(Role.USER);
+                    userRepository.save(user);
+                }
+                return "Hello, " + attributes.get("given_name");
+            }
+        }
+        return "No OAuth2AuthenticationToken found";
     }
 }
 

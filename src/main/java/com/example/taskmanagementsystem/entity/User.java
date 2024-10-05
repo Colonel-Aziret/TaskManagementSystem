@@ -29,6 +29,7 @@ public class User implements UserDetails {
     private Role role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String idFromOAuth2;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
