@@ -2,6 +2,7 @@ package com.example.taskmanagementsystem.service.impl;
 
 import com.example.taskmanagementsystem.entity.User;
 import com.example.taskmanagementsystem.enums.Role;
+import com.example.taskmanagementsystem.feign.MyFeignClient;
 import com.example.taskmanagementsystem.repository.UserRepository;
 import com.example.taskmanagementsystem.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
+    private final MyFeignClient myFeignClient;
 
     // Сохранение пользователя
     public User save(User user) {
@@ -80,5 +82,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return this.userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
+    }
+
+    public String getMessage(Long userId) {
+        return myFeignClient.getMessageByUserId(userId);
     }
 }

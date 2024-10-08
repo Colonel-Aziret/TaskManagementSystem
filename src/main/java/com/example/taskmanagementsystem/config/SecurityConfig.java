@@ -22,7 +22,6 @@ import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED;
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
 @EnableWebSecurity
@@ -46,7 +45,7 @@ public class SecurityConfig {
                 // Настройка доступа к конечным точкам
                 .authorizeHttpRequests(request -> request
                         // Можно указать конкретный путь, * - 1 уровень вложенности, ** - любое количество уровней вложенности
-                        .requestMatchers("/auth/**", "/email/**", "/").permitAll()
+                        .requestMatchers("/auth/**", "/email/**", "/user/**", "/").permitAll()
                         .requestMatchers("/secured").authenticated() // Добавляем здесь
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())

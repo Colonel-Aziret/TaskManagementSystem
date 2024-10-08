@@ -78,7 +78,7 @@ public class AuthenticationServiceImpl {
                     user.setPassword(password);
                     user.setEmail((String) attributes.get("email"));
                     user.setRole(Role.USER);
-                    userRepository.save(user);
+                    userService.create(user);
                 }
                 return "Hello, " + attributes.get("given_name");
             }
